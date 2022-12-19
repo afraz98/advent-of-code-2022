@@ -83,74 +83,55 @@ In the example above, these directories are a and e; the sum of their total size
 Find all of the directories with a total size of at most 100000. What is the sum of the total sizes of those directories?
 """
 
-class Directory():
-  def __init__(self, name, parent=None):
-    self.name = name
-    self.parent = parent
-    self.size = 0
-    self.sub_directories = []
+sizes = {}
+stack = []
 
-  def insert_sub_directory(self, sub_directory):
-    self.sub_directories.append(Directory(sub_directory, parent=self))
+size_limit = 100000
 
-  def insert_content(self, content):
-    self.size += content
-  
-  def get_directory(self, dir_name):
-    for dir in self.sub_directories:
-      if dir.name == dir_name:
-        if dir.parent.name == self.name:
-          return dir
-
-  def get_contents_size(self):
-    content_size = self.size + sum([dir.get_contents_size() for dir in self.sub_directories])
-    return content_size if content_size < 100000 else 0
-
-  def get_size(self):
-    return self.get_contents_size() + sum([dir.get_contents_size() for dir in self.sub_directories])
-
-class DirectoryTree():
-  def __init__(self, file_name):
-    self.root = Directory("/", None)
-    self.current_directory = self.root
-    self.commands = []
-
-    # Parse commands from input
-    self._parse_commands(file_name)
-
-  def _parse_commands(self, file_name):
-    i = -1
-    for input in [line for line in open(file_name, "r")]:
-      if "$" in input:
-        i += 1
-        cmd = input.strip("$ \n")
-        self.commands.append({'index': i, 'command':cmd, 'output':[]})
+def _parse_commands(file_name):
+  for index, input in enumerate([line for line in open(file_name, "r")]):
+    input = input.replace("$ ", "")
+    if input[0:3] != "dir" and input[0:2] != "ls":
+      if input[0:2] == "cd" and ".." in input:
+        stack.pop()
+      elif input[0:2] == "cd":
+        stack.append(index)
+        sizes[index] = 0
       else:
-        self.commands[i]['output'].append(input.strip("\n"))
+        for dir in stack:
+          sizes[dir] += int(input.split(" ")[0])
 
-  def _list_directory(self, args):
-    for content in args:
-      if 'dir' in content.split(" "):
-        self.current_directory.insert_sub_directory(content.split(" ")[-1])
-      else:
-        self.current_directory.insert_content(int(content.split(" ")[0]))
-    pass
+_parse_commands("no_space.txt")
+print(sum([sizes[i] for i in sizes if sizes[i] <= size_limit]))
 
-  def run_commands(self):
-    for command in self.commands:
-      args = command['command'].split(" ")
-      if "ls" in args:
-        self._list_directory(command['output'])
-      if "cd" in args:
-        if ".." in args:
-          self.current_directory = self.current_directory.parent
-        elif args[-1] != self.current_directory.name:
-          self.current_directory = self.current_directory.get_directory(args[-1])
-    pass
+"""
+--- Part Two ---
 
-  def get_size(self):
-    return self.root.get_size()
+Now, you're ready to choose a directory to delete.
 
-d = DirectoryTree("test_no_space_1.txt")
-d.run_commands()
-print(d.get_size())
+The total disk space available to the filesystem is 70000000. To run the update, you need unused space of at least 30000000. 
+You need to find a directory you can delete that will free up enough space to run the update.
+
+In the example above, the total size of the outermost directory (and thus the total amount of used space) is 48381165; 
+this means that the size of the unused space must currently be 21618835, which isn't quite the 30000000 required by the update. 
+Therefore, the update still requires a directory with total size of at least 8381165 to be deleted before it can run.
+
+To achieve this, you have the following options:
+
+    Delete directory e, which would increase unused space by 584.
+    Delete directory a, which would increase unused space by 94853.
+    Delete directory d, which would increase unused space by 24933642.
+    Delete directory /, which would increase unused space by 48381165.
+
+Directories e and a are both too small; deleting them would not free up enough space. 
+However, directories d and / are both big enough! Between these, choose the smallest: d, increasing unused space by 24933642.
+
+Find the smallest directory that, if deleted, would free up enough space on the filesystem to run the update. What is the total size of that directory?
+"""
+
+total_space = 70000000
+required_space = 30000000
+free_space = total_space - max([sizes[i] for i in sizes])
+needed_space = required_space - free_space
+potential_deletes = [sizes[i] for i in sizes if sizes[i] >= needed_space]
+print(min(potential_deletes))
