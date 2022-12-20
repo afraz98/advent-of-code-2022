@@ -32,26 +32,48 @@ With 16 trees visible on the edge and another 5 visible in the interior, a total
 Consider your map; how many trees are visible from outside the grid?
 """
 
-input = [line.strip("\n") for line in open("test_tree_house.txt", "r")]
+input = [line.strip("\n") for line in open("tree_house.txt", "r")]
 
 def is_visible(x, y):
+    print("testing %s, %s" % (x,y))
     return is_edge_element(x,y) or tallest_locally(x,y)
 
 def is_edge_element(x,y):
     if x <= 0 or x >= len(input[0]) - 1:
+        print("edge element")
         return True
     elif y <= 0 or y >= len(input) - 1:
+        print("edge element")
         return True
     return False
 
 def tallest_locally(x,y):
-    for i in range(0, len(input[0])):
+    for i in range(x+1, len(input[0])):
+        print("right")
+        print("(%d, %d): %s ? (%d, %d) %s" % (x, y, input[x][y], x, i, input[x][i]))
         if input[x][y] <= input[x][i]:
-            return False
-    for j in range(0, len(input)-1):
-        if input[x][y] <= input[j][i]:
-            return False
-    return True
+            break
+        return True
+
+    for j in range(0, x):
+        print("left")
+        print("(%d, %d): %s ? (%d, %d) %s" % (x, y, input[x][y], x, j, input[x][j]))
+        if input[x][y] <= input[x][i]:
+            break
+        return True
+    
+    for k in range(y+1, len(input)):
+        print("up")
+        if input[x][y] <= input[k][y]:
+            break
+        return True
+
+    for l in range(0, y):
+        print("down")
+        if input[x][y] <= input[l][y]:
+            break
+        return True
+    return False
 
 def trees_visible(input):
     visible_trees = 0
@@ -61,8 +83,12 @@ def trees_visible(input):
     for i in range(x):
         for j in range(y):
             if is_visible(i, j):
+                print("(%s,%s): %s -> visible" % (i,j, input[i][j]))
                 visible_trees += 1
+                print()
     return visible_trees
 
-
+for line in input:
+    print(line)
 print(trees_visible(input))
+
