@@ -313,7 +313,9 @@ class Grid:
         self.width = width
         self.height = height
 
+        self.visited = [[False for i in range(self.width)] for j in range(self.height)]
         self.map = [["." for i in range(self.width)] for j in range(self.height)]
+
         self.head = Head()
         self.tail = Tail()
 
@@ -327,6 +329,7 @@ class Grid:
     def render_tail(self):
         if self.tail.x != self.head.x or self.tail.y != self.head.y:
             self.map[self.tail.y][self.tail.x] = "T"
+            self.visited[self.tail.y][self.tail.x] = True
         pass
 
     def clear_grid(self):
@@ -383,6 +386,14 @@ class Grid:
         print()
         pass
 
+    def spaces_tail_visited(self):
+        visited = 0
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.visited[i][j]:
+                    visited += 1
+        return visited
+
 
 grid = Grid()
 grid.move_right(4)
@@ -393,3 +404,5 @@ grid.move_right(4)
 grid.move_down(1)
 grid.move_left(5)
 grid.move_right(2)
+
+print(grid.spaces_tail_visited())
