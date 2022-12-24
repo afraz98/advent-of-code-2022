@@ -265,142 +265,48 @@ How many positions does the tail of the rope visit at least once?
 """
 
 
-class Head:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-
-        self.visited = []
-
-    def move_right(self, spaces):
-        self.x += spaces
-
-    def move_left(self, spaces):
-        self.x -= spaces
-
-    def move_up(self, spaces):
-        self.y += spaces
-
-    def move_down(self, spaces):
-        self.y -= spaces
-
-    def distance_x(self, tail):
-        return self.x - tail.x
-
-    def distance_y(self, tail):
-        return self.y - tail.y
-
-
-class Tail:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-
-        self.visited = []
-
-    def move_right(self, spaces):
-        self.x += spaces
-
-    def move_left(self, spaces):
-        self.x -= spaces
-
-    def move_up(self, spaces):
-        self.y += spaces
-
-    def move_down(self, spaces):
-        self.y -= spaces
-
-
-class Grid:
-    def __init__(self, width=6, height=5):
-        self.width = width
-        self.height = height
-
+class Rope:
+    def __init__(self, length):
+        self.length = length
+        self.links = []
         self.visited = set()
         self.visited.add((0, 0))
-        self.map = [["." for i in range(self.width)] for j in range(self.height)]
 
-        self.head = Head()
-        self.tail = Tail()
+        for i in range(length):
+            self.links.append((0, 0))
 
-        # Render head in starting position
-        self.map[0][0] = 'H'
-        pass
+    def move(self, direction, spaces):
+        for i in range(spaces):
+            if direction == "L":
+                self.links[0] = (self.links[0][0] - 1, self.links[0][1])
+            if direction == "R":
+                self.links[0] = (self.links[0][0] + 1, self.links[0][1])
+            if direction == "U":
+                self.links[0] = (self.links[0][0], self.links[0][1] + 1)
+            if direction == "D":
+                self.links[0] = (self.links[0][0], self.links[0][1] - 1)
 
-    def render_head(self):
-        self.map[self.head.y][self.head.x] = "H"
+            for j in range(1, self.length):
+                d_x = self.links[j-1][0] - self.links[j][0]
+                d_y = self.links[j-1][1] - self.links[j][1]
+                if abs(d_x) > 1 or abs(d_y) > 1:
+                    self.links[j] = (self.links[j][0] + np.sign(d_x), self.links[j][1] + np.sign(d_y))
+                    if j == self.length - 1:
+                        self.visited.add((self.links[j][0], self.links[j][1]))
 
-    def render_tail(self):
-        if self.tail.x != self.head.x or self.tail.y != self.head.y:
-            self.map[self.tail.y][self.tail.x] = "T"
-        pass
-
-    def clear_grid(self):
-        for i in range(self.height):
-            for j in range(self.width):
-                self.map[i][j] = "."
-        pass
-
-    def move_right(self, spaces):
-        for i in range(0, spaces):
-            self.head.move_right(1)
-            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
-                self.tail.x += np.sign(self.head.distance_x(self.tail))
-                self.tail.y += np.sign(self.head.distance_y(self.tail))
-                self.visited.add((self.tail.y, self.tail.x))
-
-    def move_left(self, spaces):
-        for i in range(0, spaces):
-            self.head.move_left(1)
-            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
-                self.tail.x += np.sign(self.head.distance_x(self.tail))
-                self.tail.y += np.sign(self.head.distance_y(self.tail))
-                self.visited.add((self.tail.y, self.tail.x))
-
-    def move_up(self, spaces):
-        for i in range(0, spaces):
-            self.head.move_up(1)
-            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
-                self.tail.x += np.sign(self.head.distance_x(self.tail))
-                self.tail.y += np.sign(self.head.distance_y(self.tail))
-                self.visited.add((self.tail.y, self.tail.x))
-
-    def move_down(self, spaces):
-        for i in range(0, spaces):
-            self.head.move_down(1)
-            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
-                self.tail.x += np.sign(self.head.distance_x(self.tail))
-                self.tail.y += np.sign(self.head.distance_y(self.tail))
-                self.visited.add((self.tail.y, self.tail.x))
-
-    def render(self):
-        # Clear previous render
-        self.clear_grid()
-
-        self.render_head()
-        self.render_tail()
-
-        for row in reversed(self.map):
-            print("".join(row))
-        print()
-        pass
-
-    def spaces_tail_visited(self):
+    def spaces_visited(self):
         return len(self.visited)
 
 
-def parse_instructions(grid, instructions):
-    for instruction in instructions:
-        instruction = instruction.split(" ")
-        if instruction[0] == "L":
-            grid.move_left(int(instruction[-1]))
-        if instruction[0] == "R":
-            grid.move_right(int(instruction[-1]))
-        if instruction[0] == "U":
-            grid.move_up(int(instruction[-1]))
-        if instruction[0] == "D":
-            grid.move_down(int(instruction[-1]))
+rope = Rope(length=2)
+for line in [line for line in open("rope_bridge.txt", "r")]:
+    instruction = line.split(" ")
+    rope.move(instruction[0], int(instruction[-1]))
+print(rope.spaces_visited())
 
-grid = Grid()
-parse_instructions(grid, [line for line in open("rope_bridge.txt", "r")])
-print(grid.spaces_tail_visited())
+rope = Rope(length=10)
+for line in [line for line in open("rope_bridge.txt", "r")]:
+    instruction = line.split(" ")
+    rope.move(instruction[0], int(instruction[-1]))
+print(rope.spaces_visited())
+
