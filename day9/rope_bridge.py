@@ -1,3 +1,6 @@
+import time, sys
+import numpy as np
+
 """
 --- Day 9: Rope Bridge ---
 
@@ -313,7 +316,8 @@ class Grid:
         self.width = width
         self.height = height
 
-        self.visited = [[False for i in range(self.width)] for j in range(self.height)]
+        self.visited = set()
+        self.visited.add((0, 0))
         self.map = [["." for i in range(self.width)] for j in range(self.height)]
 
         self.head = Head()
@@ -329,7 +333,6 @@ class Grid:
     def render_tail(self):
         if self.tail.x != self.head.x or self.tail.y != self.head.y:
             self.map[self.tail.y][self.tail.x] = "T"
-            self.visited[self.tail.y][self.tail.x] = True
         pass
 
     def clear_grid(self):
@@ -339,40 +342,36 @@ class Grid:
         pass
 
     def move_right(self, spaces):
-        print("Moving right %d spaces" % spaces)
         for i in range(0, spaces):
             self.head.move_right(1)
-            if self.head.distance_x(self.tail) == 2:
-                self.tail.move_right(1)
-                self.tail.y = self.head.y
-            self.render()
+            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
+                self.tail.x += np.sign(self.head.distance_x(self.tail))
+                self.tail.y += np.sign(self.head.distance_y(self.tail))
+                self.visited.add((self.tail.y, self.tail.x))
 
     def move_left(self, spaces):
-        print("Moving left %d spaces" % spaces)
         for i in range(0, spaces):
             self.head.move_left(1)
-            if abs(self.head.distance_x(self.tail)) == 2:
-                self.tail.move_left(1)
-                self.tail.y = self.head.y
-            self.render()
+            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
+                self.tail.x += np.sign(self.head.distance_x(self.tail))
+                self.tail.y += np.sign(self.head.distance_y(self.tail))
+                self.visited.add((self.tail.y, self.tail.x))
 
     def move_up(self, spaces):
-        print("Moving up %d spaces" % spaces)
         for i in range(0, spaces):
             self.head.move_up(1)
-            if self.head.distance_y(self.tail) == 2:
-                self.tail.move_up(1)
-                self.tail.x = self.head.x
-            self.render()
+            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
+                self.tail.x += np.sign(self.head.distance_x(self.tail))
+                self.tail.y += np.sign(self.head.distance_y(self.tail))
+                self.visited.add((self.tail.y, self.tail.x))
 
     def move_down(self, spaces):
-        print("Moving down %d spaces" % spaces)
         for i in range(0, spaces):
             self.head.move_down(1)
-            if self.head.distance_y(self.tail) == 2:
-                self.tail.move_down(1)
-                self.tail.x = self.head.x
-            self.render()
+            if abs(self.head.x - self.tail.x) > 1 or abs(self.head.y - self.tail.y) > 1:
+                self.tail.x += np.sign(self.head.distance_x(self.tail))
+                self.tail.y += np.sign(self.head.distance_y(self.tail))
+                self.visited.add((self.tail.y, self.tail.x))
 
     def render(self):
         # Clear previous render
@@ -387,22 +386,21 @@ class Grid:
         pass
 
     def spaces_tail_visited(self):
-        visited = 0
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.visited[i][j]:
-                    visited += 1
-        return visited
+        return len(self.visited)
 
+
+def parse_instructions(grid, instructions):
+    for instruction in instructions:
+        instruction = instruction.split(" ")
+        if instruction[0] == "L":
+            grid.move_left(int(instruction[-1]))
+        if instruction[0] == "R":
+            grid.move_right(int(instruction[-1]))
+        if instruction[0] == "U":
+            grid.move_up(int(instruction[-1]))
+        if instruction[0] == "D":
+            grid.move_down(int(instruction[-1]))
 
 grid = Grid()
-grid.move_right(4)
-grid.move_up(4)
-grid.move_left(3)
-grid.move_down(1)
-grid.move_right(4)
-grid.move_down(1)
-grid.move_left(5)
-grid.move_right(2)
-
+parse_instructions(grid, [line for line in open("rope_bridge.txt", "r")])
 print(grid.spaces_tail_visited())
