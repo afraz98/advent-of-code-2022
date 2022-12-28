@@ -262,6 +262,22 @@ s###..
 So, there are 13 positions the tail visited at least once.
 Simulate your complete hypothetical series of motions.
 How many positions does the tail of the rope visit at least once?
+
+--- Part Two ---
+
+A rope snaps! Suddenly, the river is getting a lot closer than you remember. The bridge is still there, but some of the 
+ropes that broke are now whipping toward you as you fall through the air!
+
+The ropes are moving too quickly to grab; you only have a few seconds to choose how to arch your body to avoid being 
+hit. Fortunately, your simulation can be extended to support longer ropes.
+
+Rather than two knots, you now must simulate a rope consisting of ten knots. One knot is still the head of the rope and 
+moves according to the series of motions. 
+
+Each knot further down the rope follows the knot in front of it using the same rules as before.
+
+Simulate your complete series of motions on a larger rope with ten knots. How many positions does the tail of the rope 
+visit at least once?
 """
 
 

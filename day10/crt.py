@@ -203,40 +203,33 @@ class CPU:
         self.history = []
         self.instructions = []
         self.history.append(self.register)
-        self.crt = "#" * 40
 
     def parse_instructions(self, file_name):
         self.instructions = [line.strip("\n") for line in open(file_name, "r")]
 
     def execute_instructions(self):
         for instruction in self.instructions:
-            print(instruction)
             instruction = instruction.split(" ")
             if instruction[0] == "noop":
-                cpu.noop()
+                self.noop()
             elif instruction[0] == "addx":
-                cpu.addx(int(instruction[-1]))
+                self.addx(int(instruction[-1]))
 
     def noop(self):
         self.counter += 1
         self.history.append(self.register)
-        self.render()
 
     def addx(self, value):
         self.noop()
         self.noop()
         self.register += value
 
-    def render(self,):
-        print(self.crt)
-        pass
 
-
-cpu = CPU()
-cpu.parse_instructions("crt.txt")
-cpu.execute_instructions()
-print([i*cpu.history[i] for i in [20, 60, 100, 140, 180, 220]])
-print(sum(i * cpu.history[i] for i in [20, 60, 100, 140, 180, 220]))
+# cpu = CPU()
+# cpu.parse_instructions("crt.txt")
+# cpu.execute_instructions()
+# print([i*cpu.history[i] for i in [20, 60, 100, 140, 180, 220]])
+# print(sum(i * cpu.history[i] for i in [20, 60, 100, 140, 180, 220]))
 
 """
 --- Part Two ---
@@ -375,3 +368,36 @@ Allowing the program to run to completion causes the CRT to produce the followin
 #######.......#######.......#######.....
 """
 
+
+class CRT(CPU):
+    def __init__(self):
+        CPU.__init__(self)
+        self.counter = 0
+        self.crt = []
+
+    def noop(self):
+        self.render()
+        self.counter += 1
+
+    def addx(self, value):
+        self.noop()
+        self.noop()
+        self.register += value
+
+    def render(self):
+        # print(self.sprite)
+        # print(self.counter)
+
+        if (self.counter % 40) - 1 <= self.register <= (self.counter % 40) + 1:
+            print("#", end="")
+        else:
+            print(".", end="")
+        
+        if not self.counter % 40 and self.counter > 0:
+            print("\n", end="")
+        pass
+
+
+crt = CRT()
+crt.parse_instructions("crt.txt")
+crt.execute_instructions()
