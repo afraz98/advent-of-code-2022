@@ -39,48 +39,97 @@ class Monkey():
         id = 0, 
         items=[], 
         operation="", 
-        test=1
+        test=1,
+        is_true=0,
+        is_false=0
     ):
         self.id = id
         self.items = items
         self.operation = operation
         self.test = test
-
-        self.throw_test = False
         
+        self.is_true = is_true
+        self.is_false = is_false
+        self.items_inspected = 0
         pass
 
-    def test_item(self, item):
-        # Perform throw test
-        self.throw_test = (item % self.test == 0)
+    def increase_worry(self, index):
+        self.items_inspected += 1
+        old = self.items[index]
+        self.items[index] = eval(self.operation)
+    
+    def decrease_worry(self, index):
+        self.items[index] = self.items[index] // 3
 
-        # Increase worry
-        self.increase_worry(item)
+    def test_item(self, index):
+        return self.items[index] % self.test == 0
 
-        # Divide item worry by 3
-        item = item // 3
+    def find_throw_target(self, index):
+        if self.test_item(index):
+            return self.is_true
+        return self.is_false
 
-    def throw(self, monkey):
+    def perform_round(self):
         pass
 
     def __str__(self):
-        return "Monkey %s\nItems: %s\nTest: %s\nOperation: %s\n" % (str(self.id), str(self.items), str(self.test), str(self.operation)) 
+        return "Monkey %s: %s" % (str(self.id), str(self.items)) 
 
     
 monkeys = []
 
 # Parse input for monkeys
-input = [line.strip("\n\t ") for line in open("test_monkey_business.txt", "r")]
+input = [line.strip("\n\t ") for line in open("monkey_business.txt", "r")]
 
 for line in input:
     if line[:6] == "Monkey":
         monkeys.append(Monkey(id=len(monkeys)))
-        pass
     if line[:14] == "Starting items":
         monkeys[-1].items = [int(i) for i in line[15:].strip(" \n").split(",")]
     if line[:9] == "Operation":
-        monkeys[-1].operation = line[11:]
+        monkeys[-1].operation = line[17:]
+    if "Test" in line:
+        monkeys[-1].test = int(''.join(c for c in line if c.isdigit()))
+    if "true" in line:
+        monkeys[-1].is_true = int(''.join(c for c in line if c.isdigit()))
+    if "false" in line:
+        monkeys[-1].is_false = int(''.join(c for c in line if c.isdigit()))
+
+def perform_round():
+    for monkey in monkeys:
+        print("Monkey %d:" % monkey.id)
+        items_to_remove = []
+        for index in range(len(monkey.items)):
+            # Inspect item
+            print("\tMonkey %d inspects an item with worry level of %d." % (monkey.id, monkey.items[index]))
+            monkey.increase_worry(index)
+
+            # Perform operation on item
+            print("\t\tWorry level increases to %d." % monkey.items[index])
+
+            # Decrease worry level
+            monkey.decrease_worry(index)
+            print("\t\tMonkey gets bored with the item. Worry level divided by 3 to %d." % monkey.items[index])
+            
+            # Find throw target
+            print("\t\tCurrent worry level is %s divisible by %d." % ("" if monkey.test_item(index) else "not", monkey.test))
+            throw_target = monkey.find_throw_target(index)
+
+            # Throw item
+            print("\t\tItem with worry level %d is thrown to Monkey %d." % (monkey.items[index], throw_target))
+            monkeys[throw_target].items.append(monkey.items[index])
+            items_to_remove.append(index)
+        
+        monkey.items = [i for j, i in enumerate(monkey.items) if j not in items_to_remove]
+    
+    for monkey in monkeys:
+        print(str(monkey))
+    pass
+
+
+rounds = 20
+for _ in range(rounds):
+    perform_round()
 
 for monkey in monkeys:
-    print(str(monkey))
-
+    print(monkey.items_inspected)
