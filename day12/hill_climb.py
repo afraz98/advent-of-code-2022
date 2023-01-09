@@ -3,11 +3,18 @@
 
 You try contacting the Elves using your handheld device, but the river you're following must be too low to get a decent signal.
 
-You ask the device for a heightmap of the surrounding area (your puzzle input). The heightmap shows the local area from above broken into a grid; the elevation of each square of the grid is given by a single lowercase letter, where a is the lowest elevation, b is the next-lowest, and so on up to the highest elevation, z.
+You ask the device for a heightmap of the surrounding area (your puzzle input). The heightmap shows the local area from above broken into a grid; 
+the elevation of each square of the grid is given by a single lowercase letter, where a is the lowest elevation, b is the next-lowest, 
+and so on up to the highest elevation, z.
 
-Also included on the heightmap are marks for your current position (S) and the location that should get the best signal (E). Your current position (S) has elevation a, and the location that should get the best signal (E) has elevation z.
+Also included on the heightmap are marks for your current position (S) and the location that should get the best signal (E). 
+Your current position (S) has elevation a, and the location that should get the best signal (E) has elevation z.
 
-You'd like to reach E, but to save energy, you should do it in as few steps as possible. During each step, you can move exactly one square up, down, left, or right. To avoid needing to get out your climbing gear, the elevation of the destination square can be at most one higher than the elevation of your current square; that is, if your current elevation is m, you could step to elevation n, but not to elevation o. (This also means that the elevation of the destination square can be much lower than the elevation of your current square.)
+You'd like to reach E, but to save energy, you should do it in as few steps as possible. 
+During each step, you can move exactly one square up, down, left, or right. 
+To avoid needing to get out your climbing gear, the elevation of the destination square can be at most one higher than the elevation of your current square; 
+that is, if your current elevation is m, you could step to elevation n, but not to elevation o. 
+(This also means that the elevation of the destination square can be much lower than the elevation of your current square.)
 
 For example:
 
@@ -32,22 +39,51 @@ This path reaches the goal in 31 steps, the fewest possible.
 What is the fewest steps required to move from your current position to the location that should get the best signal?
 """
 
-def hill_climb(file_name):
-    start = (0,0)
-    end = (0,0)
+class Node():
+    def __init__(self, x, y, data):
+        self.x = x
+        self.y = y
+        self.data = data
 
-    input = [[str(i) for i in line.strip("\n")] for line in open(file_name, "r")]
+        self.left = None
+        self.right = None
+        self.up = None
+        self.down = None
+        pass
 
-    for i in range(len(input)):
-        for j in range(len(input[0])):
-            if input[i][j] == 'S':
-                start = (i,j)
+class Grid():
+    def __init__(self, width, height):
+        self.root = None
+        self.width = width
+        self.height = height
+
+    def insert(self, x, y):
+        if self.root is None:
+            self.root = Node(x, y, grid[x][y])
+        self.root = self._insert(x, y)
     
-    for i in range(len(input)):
-        for j in range(len(input[0])):
-            if input[i][j] == 'E':
-                end = (i,j)
+    def _insert(self, x, y):
+        if 0 <= x < width and 0 <= y < height:
+            node = Node(x, y, grid[x][y])
+            pass
+        return None
 
-    pass
+grid = [[str(i) for i in line.strip("\n")] for line in open("test_hill_climb.txt", "r")]
+width = len(grid[0])
+height = len(grid)
 
-hill_climb("test_hill_climb.txt")
+map_grid = Grid(width, height)
+
+start_x = 0
+start_y = 0
+
+for i in range(len(grid)):
+    for j in range(len(grid[0])):
+        if grid[i][j] == 'S':
+            start_x = i
+            start_y = j
+
+map_grid.insert(start_x, start_y)
+    
+
+
