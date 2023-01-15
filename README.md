@@ -15,7 +15,7 @@ My solutions for the [Advent of Code](https://adventofcode.com/) competition for
 |  9  | Rope Bridge | :star: :star: |
 | 10  | Cathode-Ray Tube | :star: :star: |
 | 11  | Monkey in the Middle | :star: :star: |
-| 12  | Hill-Climbing Algorithm | |
+| 12  | Hill-Climbing Algorithm | :star: :star: |
 | 13  | Distress Signal | :star: :star: |
 | 14  | Regolith Reservoir | |
 | 15  | Beacon Exclusion Zone | |
