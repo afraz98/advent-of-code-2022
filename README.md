@@ -16,7 +16,7 @@ My solutions for the [Advent of Code](https://adventofcode.com/) competition for
 | 10  | Cathode-Ray Tube | :star: :star: |
 | 11  | Monkey in the Middle | :star: :star: |
 | 12  | Hill-Climbing Algorithm | |
-| 13  | Distress Signal | |
+| 13  | Distress Signal | :star: :star: |
 | 14  | Regolith Reservoir | |
 | 15  | Beacon Exclusion Zone | |
 | 16  | Proboscidea Volcanium | |
