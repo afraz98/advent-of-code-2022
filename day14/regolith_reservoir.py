@@ -68,9 +68,7 @@ def _range(start, end):
   Returns:
     (list): All values between [start, end]
   """
-  if start >= end:
-    return [i for i in range(end, start+1)]
-  return [i for i in range(start, end+1)]
+  return [i for i in range(end, start+1)] if start >= end else [i for i in range(start, end+1)]
 
 class RegolithReservoir:
   """
@@ -84,11 +82,6 @@ class RegolithReservoir:
   """
   def __init__(self, filename):
     self.filename = filename
-
-    self.min_x = 0
-    self.max_x = 0
-    self.min_y = 0
-    self.max_y = 0
 
     self.grid = []
     self.dropped_sand = []
@@ -126,7 +119,7 @@ class RegolithReservoir:
     self.draw_lines(lines)
 
   def render(self):
-    time.sleep(0.25)
+    time.sleep(.2)
     os.system('clear')
     
     # Recreate grid
@@ -142,25 +135,26 @@ class RegolithReservoir:
     pass
 
   def _drop_sand(self, x, y):
-    if self.grid[x][y] == "#":
-      return None
-
-    if self.grid[x][y+1] == "#":
-      return (x, y)
-
-    if self.grid[x][y+1] == "o":
-      if self.grid[x-1][y+1] != "o" and self.grid[x-1][y+1] != "#":
-        return (x-1, y+1) 
-      if self.grid[x+1][y+1] != "o" and self.grid[x+1][y+1] != "#":
-        return (x+1, y+1)
-      if self.grid[x-2][y+1] != "o" and self.grid[x-2][y+1] != "#":
-        return (x-2, y+1) 
-      if self.grid[x+2][y+1] != "o" and self.grid[x+2][y+1] != "#":
-        return (x+2, y+1)
-      return (x, y)
-
     
-    return self._drop_sand(x, y+1)
+    while True:
+      self.dropped_sand[-1] = (x,y)
+      self.render()
+
+      if y+1 > self.max_y:
+        return (x, y+1)
+
+      if self.grid[x][y+1] == ".":
+        print("down")
+        return self._drop_sand(x, y+1)
+      elif self.grid[x-1][y+1] == ".":
+        print("left")
+        return self._drop_sand(x-1, y+1)
+      elif self.grid[x+1][y+1] == ".":
+        print("right")
+        return self._drop_sand(x+1, y+1)
+      else:
+        print("cant move")
+        return (x, y)
 
   def drop_sand(self):
     """
@@ -169,11 +163,11 @@ class RegolithReservoir:
     Returns:
       (list, bool): Updated grid and completion status based on where the sand lands 
     """
+    print("dropping new sand")
     self.dropped_sand.append((500 - self.min_x, 0))
-    self.dropped_sand[-1] = self._drop_sand(self.dropped_sand[-1][0], self.dropped_sand[-1][0])
-    if self.dropped_sand[-1][1] > self.max_y:
+    self.dropped_sand[-1] = self._drop_sand(self.dropped_sand[-1][0], self.dropped_sand[-1][1])
+    if self.dropped_sand[-1][1] >= self.max_y:
       self.complete = True
-    self.render()
 
   def simulate_sand(self):
     """
@@ -186,9 +180,10 @@ class RegolithReservoir:
     Returns:
       (int): The number of particles that come to rest before sand starts to fall out of the designated area
     """
-
+    
     while not self.complete:
       self.drop_sand()
-    return len(self.dropped_sand)
+      print(len(self.dropped_sand))
+    return len(self.dropped_sand)-1
 
-RegolithReservoir("test_regolith_reservoir.txt").simulate_sand()
+print(RegolithReservoir("test_regolith_reservoir.txt").simulate_sand())
