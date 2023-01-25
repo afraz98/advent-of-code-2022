@@ -96,7 +96,7 @@ class RegolithReservoir:
     for point_a, point_b in line_segments:
       for x in _range(point_a[1], point_b[1]):
         for y in _range(point_a[0], point_b[0]):
-          self.grid[y][x] = "#"
+          self.grid[x][y] = "#"
 
   def draw_lines(self, lines):
       for line in lines:
@@ -120,7 +120,7 @@ class RegolithReservoir:
 
   def render(self):
     time.sleep(.2)
-    os.system('clear')
+    # os.system('clear')
     
     # Recreate grid
     self.create_grid()
@@ -130,31 +130,24 @@ class RegolithReservoir:
 
     for x in range(0, self.max_y+1):
       for y in range(0, self.max_x+1):
-        print(self.grid[y][x], end="")
+        print(self.grid[x][y], end="")
       print()
     pass
 
   def _drop_sand(self, x, y):
-    
     while True:
       self.dropped_sand[-1] = (x,y)
-      self.render()
 
-      if y+1 > self.max_y:
-        return (x, y+1)
-
-      if self.grid[x][y+1] == ".":
-        print("down")
-        return self._drop_sand(x, y+1)
-      elif self.grid[x-1][y+1] == ".":
-        print("left")
-        return self._drop_sand(x-1, y+1)
-      elif self.grid[x+1][y+1] == ".":
-        print("right")
-        return self._drop_sand(x+1, y+1)
-      else:
-        print("cant move")
+      if x+1 > self.max_y:
         return (x, y)
+
+      if self.grid[x+1][y] == ".":
+        return self._drop_sand(x+1, y)
+      elif self.grid[x+1][y-1] == ".":
+        return self._drop_sand(x+1, y-1)
+      elif self.grid[x+1][y+1] == ".":
+        return self._drop_sand(x+1, y+1)
+      return (x, y)
 
   def drop_sand(self):
     """
@@ -164,9 +157,9 @@ class RegolithReservoir:
       (list, bool): Updated grid and completion status based on where the sand lands 
     """
     print("dropping new sand")
-    self.dropped_sand.append((500 - self.min_x, 0))
+    self.dropped_sand.append((0, 500 - self.min_x))
     self.dropped_sand[-1] = self._drop_sand(self.dropped_sand[-1][0], self.dropped_sand[-1][1])
-    if self.dropped_sand[-1][1] >= self.max_y:
+    if self.dropped_sand[-1][0] >= self.max_y:
       self.complete = True
 
   def simulate_sand(self):
@@ -183,7 +176,9 @@ class RegolithReservoir:
     
     while not self.complete:
       self.drop_sand()
+      if not self.complete:
+        self.render()
       print(len(self.dropped_sand))
     return len(self.dropped_sand)-1
 
-print(RegolithReservoir("test_regolith_reservoir.txt").simulate_sand())
+print(RegolithReservoir("regolith_reservoir.txt").simulate_sand())
