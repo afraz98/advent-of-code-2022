@@ -181,4 +181,158 @@ class RegolithReservoir:
       print(len(self.dropped_sand))
     return len(self.dropped_sand)-1
 
-print(RegolithReservoir("regolith_reservoir.txt").simulate_sand())
+# print(RegolithReservoir("regolith_reservoir.txt").simulate_sand())
+
+"""
+--- Part Two ---
+
+You realize you misread the scan. There isn't an endless void at the bottom of the scan - there's floor, and you're standing on it!
+
+You don't have time to scan the floor, so assume the floor is an infinite horizontal line with a y coordinate equal 
+to two plus the highest y coordinate of any point in your scan.
+
+In the example above, the highest y coordinate of any point is 9, and so the floor is at y=11. 
+(This is as if your scan contained one extra rock path like -infinity,11 -> infinity,11.) With the added floor, the example above now looks like this:
+
+        ...........+........
+        ....................
+        ....................
+        ....................
+        .........#...##.....
+        .........#...#......
+        .......###...#......
+        .............#......
+        .............#......
+        .....#########......
+        ....................
+<-- etc #################### etc -->
+
+To find somewhere safe to stand, you'll need to simulate falling sand until a unit of sand comes to rest at 500,0, 
+blocking the source entirely and stopping the flow of sand into the cave. In the example above, 
+the situation finally looks like this after 93 units of sand come to rest:
+
+............o............
+...........ooo...........
+..........ooooo..........
+.........ooooooo.........
+........oo#ooo##o........
+.......ooo#ooo#ooo.......
+......oo###ooo#oooo......
+.....oooo.oooo#ooooo.....
+....oooooooooo#oooooo....
+...ooo#########ooooooo...
+..ooooo.......ooooooooo..
+#########################
+
+Using your scan, simulate the falling sand until the source of the sand becomes blocked. How many units of sand come to rest?
+"""
+
+class RegolithContainer:
+  """
+  Simulator class for Regolith Reservoir problem (part 2).
+
+  Attributes:
+    min_x (int): Minimum x coordinate
+    max_x (int): Maximum x coordinate
+    min_y (int): Minimum y coordinate
+    grid (list): Coordinate grid displaying reservoir
+  """
+  def __init__(self, filename):
+    self.filename = filename
+
+    self.grid = []
+    self.dropped_sand = []
+    self.create_grid()
+
+    self.complete = False
+    pass
+
+  def _draw_lines(self, line):
+    line_segments = list(zip(line, line[1:]))
+
+    for point_a, point_b in line_segments:
+      for x in _range(point_a[1], point_b[1]):
+        for y in _range(point_a[0], point_b[0]):
+          self.grid[x][y] = "#"
+
+  def draw_lines(self, lines):
+      for line in lines:
+        self._draw_lines(line)
+
+      for x in range(self.min_x, self.max_x):
+        for y in range(self.max_y, self.max_y):
+          self.grid[x][y] = "#"
+
+  def create_grid(self):
+    lines = [[eval(point) for point in line.strip("\n").replace(" ", "").split("->")] for line in open(self.filename, "r")]
+
+    self.min_x = int(min([min([point[0] for point in line]) for line in lines])) - 34
+    self.min_y = int(min([min([point[1] for point in line]) for line in lines]))
+    self.max_x = int(max([max([point[0] for point in line]) for line in lines])) + 100
+    self.max_y = int(max([max([point[1] for point in line]) for line in lines])) + 1
+    
+    self.grid = [["." for x in range(0, self.max_x + 1)] for y in range(0, self.max_y + 1)]
+    self.draw_lines(lines)
+
+  def render(self):
+    time.sleep(.1)
+    # os.system('clear')
+    
+    # Recreate grid
+    self.create_grid()
+
+    for sand in self.dropped_sand:
+      self.grid[sand[0]][sand[1]] = "o"
+
+    for x in range(0, self.max_y+1):
+      for y in range(self.min_x, self.max_x+1):
+        print(self.grid[x][y], end="")
+      print()
+    pass
+
+  def _drop_sand(self, x, y):
+    while True:
+      self.dropped_sand[-1] = (x, y)
+
+      if x+1 > self.max_y:
+        return (x, y)
+
+      if self.grid[x+1][y] == ".":
+        return self._drop_sand(x+1, y)
+      elif self.grid[x+1][y-1] == ".":
+        return self._drop_sand(x+1, y-1)
+      elif self.grid[x+1][y+1] == ".":
+        return self._drop_sand(x+1, y+1)
+      return (x, y)
+
+  def drop_sand(self):
+    """
+    Drop sand particle, updating grid to render particle as it drops
+
+    Returns:
+      (list, bool): Updated grid and completion status based on where the sand lands 
+    """
+    self.dropped_sand.append((0, 500))
+    self.dropped_sand[-1] = self._drop_sand(self.dropped_sand[-1][0], self.dropped_sand[-1][1])
+    if self.dropped_sand[-1][0] == 0 and self.dropped_sand[-1][1] == 500:
+      self.complete = True
+
+  def simulate_sand(self):
+    """
+    Simulate sand particles falling, returning the number of particles that come to rest 
+    before sand starts to fall out of the designated area.
+
+    Args:
+      filename (str): Filename of file containing input
+
+    Returns:
+      (int): The number of particles that come to rest before sand starts to fall out of the designated area
+    """
+    
+    while not self.complete:
+      self.drop_sand()
+      if not self.complete:
+        self.render()
+    return len(self.dropped_sand)
+
+print(RegolithContainer("regolith_reservoir.txt").simulate_sand())
