@@ -17,7 +17,7 @@ My solutions for the [Advent of Code](https://adventofcode.com/) competition for
 | 11  | Monkey in the Middle | :star: :star: |
 | 12  | Hill-Climbing Algorithm | :star: :star: |
 | 13  | Distress Signal | :star: :star: |
-| 14  | Regolith Reservoir | |
+| 14  | Regolith Reservoir | :star: :star: |
 | 15  | Beacon Exclusion Zone | |
 | 16  | Proboscidea Volcanium | |
 | 17  | Pyroclastic Flow | |

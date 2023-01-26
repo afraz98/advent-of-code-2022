@@ -5,3 +5,4 @@ for line in open("result.txt", "r"):
             count += 1
 
 print(count)
+
