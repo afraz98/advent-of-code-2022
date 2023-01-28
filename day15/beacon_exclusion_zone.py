@@ -112,13 +112,13 @@ In this example, in the row where y=10, there are 26 positions where a beacon ca
 Consult the report from the sensors you just deployed. In the row where y=2000000, how many positions cannot contain a beacon?
 """
 
-sensors = []
+def manhattan_distance(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
 
 class Beacon():
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
 
 class Sensor():
     def __init__(self, x, y, nearest_beacon):
@@ -127,13 +127,57 @@ class Sensor():
         self.nearest_beacon = nearest_beacon
 
     def __str__(self):
-        return "(%d, %d) -> (%d, %d)" % (self.x, self.y, self.nearest_beacon.x, self.nearest_beacon.y)
+        return "(%d, %d), (%d, %d), %d" % (self.x, self.y, self.nearest_beacon.x, self.nearest_beacon.y, self.manhattan_distance)
 
 def parse_input(filename):
-    return [ [int(i) for i in re.findall(r'-?[0-9]+', line.strip("\n"))] for line in open(filename, "r")]
+    return [ [int(i) for i in re.findall(r'-?[0-9]+', line.strip("\n"))] for line in open(filename, "r") ]
 
-for input in parse_input("test_beacon_exclusion_zone.txt"):
-    sensor_x, sensor_y, beacon_x, beacon_y = input
-    sensors.append(Sensor(sensor_x, sensor_y, Beacon(beacon_x, beacon_y)))
+def find_sensors(filename):
+    correction_factor_x = 0
+    correction_factor_y = 0
+    
+    sensors = []
+    min_y = 999
+    max_y = -999
+    min_x = 999
+    max_x = -999
 
-print([str(sensor) for sensor in sensors])
+    for input in parse_input(filename):
+        sensor_x, sensor_y, beacon_x, beacon_y = input
+        # Update grid min-max values
+        min_y = min(min_y, sensor_y, beacon_y)
+        max_y = max(max_y, sensor_y, beacon_y)
+        min_x = min(min_x, sensor_x, beacon_x)
+        max_x = max(max_x, sensor_x, beacon_x)
+        sensors.append(Sensor(sensor_x, sensor_y, Beacon(beacon_x, beacon_y)))
+    
+    if min_y < 0:
+        correction_factor_y += abs(min_y)
+
+    if min_x < 0:
+        correction_factor_x += abs(min_x)
+    
+    return correction_factor_x, correction_factor_y, min_y, max_y, min_x, max_x, sensors
+
+def render(grid):
+    for y in range(min_y, max_y + 5):
+      for x in range(min_x, max_x + 5):
+        print(grid[y][x], end="")
+      print()
+
+def render_sensor(sensor, correction_factor_x, correction_factor_y):
+    for y in range(min_x, max_x+1):
+      for x in range(min_y, max_y+1):
+        if manhattan_distance(x, y, sensor.x, sensor.y) <= manhattan_distance(sensor.x, sensor.nearest_beacon.x, sensor.y, sensor.nearest_beacon.y):
+            grid[y + correction_factor_x][x + correction_factor_y] = "#"
+
+def create_grid():
+    return [["." for i in range(min_x, max_x + 5)] for j in range(min_y, max_y + 5)]
+
+correction_factor_x, correction_factor_y, min_y, max_y, min_x, max_x, sensors = find_sensors("test_beacon_exclusion_zone.txt")
+grid = create_grid()
+
+for sensor in sensors:
+    grid[sensor.y + correction_factor_x][sensor.x + correction_factor_y] = "S"
+    grid[sensor.nearest_beacon.y + correction_factor_x][sensor.nearest_beacon.x + correction_factor_y] = "B"
+render(grid)

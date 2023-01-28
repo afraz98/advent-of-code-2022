@@ -29,3 +29,4 @@ My solutions for the [Advent of Code](https://adventofcode.com/) competition for
 | 23  | Unstable Diffusion | |
 | 24  | Blizzard Basin | |
 | 25  | Full of Hot Air | |
+
