@@ -112,72 +112,98 @@ In this example, in the row where y=10, there are 26 positions where a beacon ca
 Consult the report from the sensors you just deployed. In the row where y=2000000, how many positions cannot contain a beacon?
 """
 
+# Set-based approach using manhattan distance in a single dimension to determine the number of points / beacons 
+# fitting the line y = 2000000
+
+
 def manhattan_distance(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
 
-class Beacon():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
 
-class Sensor():
-    def __init__(self, x, y, nearest_beacon):
-        self.x = x
-        self.y = y
-        self.nearest_beacon = nearest_beacon
-
-    def __str__(self):
-        return "(%d, %d), (%d, %d), %d" % (self.x, self.y, self.nearest_beacon.x, self.nearest_beacon.y, self.manhattan_distance)
-
-def parse_input(filename):
-    return [ [int(i) for i in re.findall(r'-?[0-9]+', line.strip("\n"))] for line in open(filename, "r") ]
-
-def find_sensors(filename):
-    correction_factor_x = 0
-    correction_factor_y = 0
-    
-    sensors = []
-    min_y = 999
-    max_y = -999
-    min_x = 999
-    max_x = -999
-
-    for input in parse_input(filename):
+def parse_reports(filename):
+    reports = []
+    for input in [[int(i) for i in re.findall(r'-?[0-9]+', line.strip("\n"))] for line in open(filename, "r")]:
         sensor_x, sensor_y, beacon_x, beacon_y = input
-        # Update grid min-max values
-        min_y = min(min_y, sensor_y, beacon_y)
-        max_y = max(max_y, sensor_y, beacon_y)
-        min_x = min(min_x, sensor_x, beacon_x)
-        max_x = max(max_x, sensor_x, beacon_x)
-        sensors.append(Sensor(sensor_x, sensor_y, Beacon(beacon_x, beacon_y)))
-    
-    if min_y < 0:
-        correction_factor_y += abs(min_y)
+        reports.append((sensor_x, sensor_y, beacon_x, beacon_y))
+    return reports
 
-    if min_x < 0:
-        correction_factor_x += abs(min_x)
-    
-    return correction_factor_x, correction_factor_y, min_y, max_y, min_x, max_x, sensors
 
-def render(grid):
-    for y in range(min_y, max_y + 5):
-      for x in range(min_x, max_x + 5):
-        print(grid[y][x], end="")
-      print()
+def find_positions_no_beacon(reports, y):
+    beacons_not_found = set()
+    beacons_found = set()
 
-def render_sensor(sensor, correction_factor_x, correction_factor_y):
-    for y in range(min_x, max_x+1):
-      for x in range(min_y, max_y+1):
-        if manhattan_distance(x, y, sensor.x, sensor.y) <= manhattan_distance(sensor.x, sensor.nearest_beacon.x, sensor.y, sensor.nearest_beacon.y):
-            grid[y + correction_factor_x][x + correction_factor_y] = "#"
+    for report in reports:
+        sensor_x, sensor_y, beacon_x, beacon_y = report
+        _manhattan_distance = manhattan_distance(sensor_x, beacon_x, sensor_y, beacon_y)
+        if sensor_y - _manhattan_distance <= y <= sensor_y + _manhattan_distance:
+            if beacon_y == y:
+                beacons_found.add((beacon_x, beacon_y))
+            for x in range(sensor_x - (_manhattan_distance - abs(y - sensor_y)),
+                           sensor_x + (_manhattan_distance - abs(y - sensor_y)+1)):
+                beacons_not_found.add((x, y))
+        pass
+    return beacons_not_found - beacons_found
 
-def create_grid():
-    return [["." for i in range(min_x, max_x + 5)] for j in range(min_y, max_y + 5)]
 
-correction_factor_x, correction_factor_y, min_y, max_y, min_x, max_x, sensors = find_sensors("test_beacon_exclusion_zone.txt")
-grid = create_grid()
+# Part 1 solution
+print(len(find_positions_no_beacon(parse_reports("beacon_exclusion_zone.txt"), 2000000)))
 
-for sensor in sensors:
-    grid[sensor.y + correction_factor_x][sensor.x + correction_factor_y] = "S"
-    grid[sensor.nearest_beacon.y + correction_factor_x][sensor.nearest_beacon.x + correction_factor_y] = "B"
-render(grid)
+"""
+--- Part Two ---
+
+Your handheld device indicates that the distress signal is coming from a beacon nearby. 
+The distress beacon is not detected by any sensor, but the distress beacon must have x and y coordinates each no lower than 0 and no larger than 4000000.
+
+To isolate the distress beacon's signal, you need to determine its tuning frequency, which can be found by multiplying its 
+x coordinate by 4000000 and then adding its y coordinate.
+
+In the example above, the search space is smaller: instead, the x and y coordinates can each be at most 20. 
+With this reduced search area, there is only a single position that could have a beacon: x=14, y=11. The tuning frequency for this distress beacon is 56000011.
+
+Find the only possible position for the distress beacon. What is its tuning frequency?
+"""
+
+# Check all circles existing in the Manhattan geometry of a given sensor.
+# Look for points that lie outside all given Manhattan circles
+
+
+def manhattan_edges(x: int, y: int, dist: int, limit: int):
+    for offset in range(dist):
+        inv_offset = dist - offset
+        if any([x + offset < 0, x + offset > limit, x - offset < 0, x - offset > limit,
+                x + inv_offset < 0, x + inv_offset > limit, x - inv_offset < 0, x - inv_offset > limit,
+                y + offset < 0, y + offset > limit, y - offset < 0, y - offset > limit,
+                y + inv_offset < 0, y + inv_offset > limit, y - inv_offset < 0, y - inv_offset > limit]):
+            continue
+        yield x + offset, y + inv_offset
+        yield x + inv_offset, y - offset
+        yield x - offset, y - inv_offset
+        yield x - inv_offset, y + offset
+    yield -1, -1
+
+
+def in_range(x, y, reports):
+    for report in reports:
+        sensor_x, sensor_y, beacon_x, beacon_y = report
+        if manhattan_distance(sensor_x, sensor_y, x, y) <= manhattan_distance(sensor_x, sensor_y, beacon_x, beacon_y):
+            return True
+    return False
+
+
+def find_tuning_frequency(reports, max_coord):
+    for report in reports:
+        sensor_x, sensor_y, beacon_x, beacon_y = report
+        outsiders = manhattan_edges(sensor_x, sensor_y,
+                                    manhattan_distance(sensor_x, sensor_y, beacon_x, beacon_y) + 1, max_coord)
+
+        for _ in range(manhattan_distance(sensor_x, sensor_y, beacon_x, beacon_y) * 4):
+            test_coord_x, test_coord_y = next(outsiders)
+            if (test_coord_x, test_coord_y) == (-1, -1):
+                break
+            if not (in_range(test_coord_x, test_coord_y, reports)):
+                return (test_coord_x * max_coord) + test_coord_y
+    return -1
+
+
+print(find_tuning_frequency(parse_reports("beacon_exclusion_zone.txt"), 4000000))
+

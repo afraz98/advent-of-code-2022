@@ -2,8 +2,10 @@
 
 My solutions for the [Advent of Code](https://adventofcode.com/) competition for 2022 implemented in Python 3.
 
-| Day | Description | Score |
-| --- | ----------- | ----- | 
+[Mostly] implemented with standard library functionality.
+
+| Day | Description | Score         |
+| --- | ----------- |---------------| 
 |  1  | Calorie Counting | :star: :star: |
 |  2  | Rock Paper Scissors | :star: :star: |
 |  3  | Rucksack Reorganization | :star: :star: |
@@ -18,15 +20,15 @@ My solutions for the [Advent of Code](https://adventofcode.com/) competition for
 | 12  | Hill-Climbing Algorithm | :star: :star: |
 | 13  | Distress Signal | :star: :star: |
 | 14  | Regolith Reservoir | :star: :star: |
-| 15  | Beacon Exclusion Zone | |
-| 16  | Proboscidea Volcanium | |
-| 17  | Pyroclastic Flow | |
-| 18  | Boiling Boulders | |
-| 19  | Not Enough Minerals | |
-| 20  | Grove Positioning System | |
-| 21  | Monkey Math | |
-| 22  | Monkey Map | |
-| 23  | Unstable Diffusion | |
-| 24  | Blizzard Basin | |
-| 25  | Full of Hot Air | |
+| 15  | Beacon Exclusion Zone | :star: :star: |
+| 16  | Proboscidea Volcanium |               |
+| 17  | Pyroclastic Flow |               |
+| 18  | Boiling Boulders |               |
+| 19  | Not Enough Minerals |               |
+| 20  | Grove Positioning System |               |
+| 21  | Monkey Math |               |
+| 22  | Monkey Map |               |
+| 23  | Unstable Diffusion |               |
+| 24  | Blizzard Basin |               |
+| 25  | Full of Hot Air |               |
 
