@@ -41,7 +41,7 @@ This path reaches the goal in 31 steps, the fewest possible.
 What is the fewest steps required to move from your current position to the location that should get the best signal?
 """
 
-class Cell():
+class Cell:
     def __init__(self, x, y, data):
         self.x = x
         self.y = y
@@ -56,6 +56,7 @@ class Cell():
 
     def __str__(self):
         return "(%s, %s)" % (self.x, self.y)
+
 
 grid = [[str(i) for i in line.strip("\n")] for line in open("hill_climb.txt", "r")]
 width = len(grid[0])

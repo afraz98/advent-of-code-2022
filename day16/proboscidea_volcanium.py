@@ -1,23 +1,28 @@
 """
 --- Day 16: Proboscidea Volcanium ---
 
-The sensors have led you to the origin of the distress signal: yet another handheld device, just like the one the Elves gave you. 
-However, you don't see any Elves around; instead, the device is surrounded by elephants! They must have gotten lost in these tunnels, 
-and one of the elephants apparently figured out how to turn on the distress signal.
+The sensors have led you to the origin of the distress signal: yet another handheld device, just like the one the Elves
+gave you.
 
-The ground rumbles again, much stronger this time. What kind of cave is this, exactly? You scan the cave with your handheld device; 
-it reports mostly igneous rock, some ash, pockets of pressurized gas, magma... this isn't just a cave, it's a volcano!
+However, you don't see any Elves around; instead, the device is surrounded by elephants! They must have gotten lost in
+these tunnels, and one of the elephants apparently figured out how to turn on the distress signal.
 
-You need to get the elephants out of here, quickly. Your device estimates that you have 30 minutes before the volcano erupts, 
-so you don't have time to go back out the way you came in.
+The ground rumbles again, much stronger this time. What kind of cave is this, exactly? You scan the cave with your
+handheld device; it reports mostly igneous rock, some ash, pockets of pressurized gas, magma...
 
-You scan the cave for other options and discover a network of pipes and pressure-release valves. You aren't sure how such a system got into a volcano, 
-but you don't have time to complain; your device produces a report (your puzzle input) of each valve's flow rate if it were opened (in pressure per minute) 
-and the tunnels you could use to move between the valves.
+this isn't just a cave, it's a volcano!
+
+You need to get the elephants out of here, quickly. Your device estimates that you have 30 minutes before the volcano
+erupts, so you don't have time to go back out the way you came in.
+
+You scan the cave for other options and discover a network of pipes and pressure-release valves. You aren't sure
+how such a system got into a volcano, but you don't have time to complain; your device produces a report
+(your puzzle input) of each valve's flow rate if it were opened (in pressure per minute) and the tunnels you could use
+to move between the valves.
 
 There's even a valve in the room you and the elephants are currently standing in labeled AA. 
-You estimate it will take you one minute to open a single valve and one minute to follow any tunnel from one valve to another. 
-What is the most pressure you could release?
+You estimate it will take you one minute to open a single valve and one minute to follow any tunnel from one valve
+to another. What is the most pressure you could release?
 
 For example, suppose you had the following scan output:
 
@@ -32,14 +37,20 @@ Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 
-All of the valves begin closed. You start at valve AA, but it must be damaged or jammed or something: its flow rate is 0, so there's no point in opening it. 
-However, you could spend one minute moving to valve BB and another minute opening it; 
-doing so would release pressure during the remaining 28 minutes at a flow rate of 13, a total eventual pressure release of 28 * 13 = 364. 
-Then, you could spend your third minute moving to valve CC and your fourth minute opening it, providing an additional 26 minutes of eventual pressure 
-release at a flow rate of 2, or 52 total pressure released by valve CC.
+All the valves begin closed. You start at valve AA, but it must be damaged or jammed or something: its flow rate is
+0, so there's no point in opening it.
 
-Making your way through the tunnels like this, you could probably open many or all of the valves by the time 30 minutes have elapsed. 
-However, you need to release as much pressure as possible, so you'll need to be methodical. Instead, consider this approach:
+However, you could spend one minute moving to valve BB and another minute opening it;
+doing so would release pressure during the remaining 28 minutes at a flow rate of 13, a total eventual pressure release
+of 28 * 13 = 364.
+
+Then, you could spend your third minute moving to valve CC and your fourth minute opening it, providing an additional
+26 minutes of eventual pressure release at a flow rate of 2, or 52 total pressure released by valve CC.
+
+Making your way through the tunnels like this, you could probably open many or all of the valves by the time 30 minutes
+have elapsed. However, you need to release as much pressure as possible, so you'll need to be methodical.
+
+Instead, consider this approach:
 
 == Minute 1 ==
 No valves are open.
@@ -159,14 +170,62 @@ This approach lets you release the most pressure possible in 30 minutes with thi
 Work out the steps to release the most pressure in 30 minutes. What is the most pressure you can release?
 """
 
+# Maximize path quality in a given max_time minutes
+# How many nodes can be reached in max_time minutes?
+# Can you try every valid path?
+# Depth-first search
+
+
+class Node:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+        self.adj_list = []
+
+
 def _parse_input(filename):
-    return [line for line in open(filename, "r")]
+    return [line.split(";") for line in open(filename, "r")]
 
-def build_graph(input):
-    pass
 
-def open_valves(filename):
-    input = _parse_input(filename)
-    graph = build_graph(input)
+def build_graph(puzzle_input):
+    nodes = []
 
-open_valves("test_proboscidea_volcanium.txt")
+    for line in puzzle_input:
+        current_chamber = line[0][6:8]
+        pressure_rate = int(line[0][23:].strip("=,;"))
+        paths = line[1][23:].strip(" \n").split(",")
+
+        # Add node to nodes list
+        nodes.append(Node(current_chamber, pressure_rate))
+
+        for path in paths:
+            nodes[-1].adj_list.append(path)
+    return nodes
+
+
+class Traversal:
+    def __init__(self, filename, max_moves):
+        self.filename = filename
+        self.max_moves = max_moves
+        self.current_moves = max_moves
+    def _depth_first_search(self, node, visited, gain, moves):
+        if node.name == "AA":
+            self.value = max(self.value, gain)
+        for path in node.adj_list:
+            if self.current_moves - 1 > 0:
+                self._depth_first_search(path, visited, gain + (not visited[node.name]) * path.value)
+        pass
+
+    def traverse_graph(self, start_node, nodes):
+        visited = {}
+        for node in nodes:
+            visited[node.name] = False
+
+        return self._depth_first_search(start_node, visited, start_node.value, )
+
+    def open_valves(self):
+        nodes = build_graph(_parse_input(self.filename))
+        return self.traverse_graph(nodes[0], nodes)
+
+
+Traversal("test_proboscidea_volcanium.txt", 30).open_valves()

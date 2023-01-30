@@ -25,7 +25,7 @@ My solutions for the [Advent of Code](https://adventofcode.com/) competition for
 | 17  | Pyroclastic Flow |               |
 | 18  | Boiling Boulders |               |
 | 19  | Not Enough Minerals |               |
-| 20  | Grove Positioning System |               |
+| 20  | Grove Positioning System | :star: :star: |
 | 21  | Monkey Math |               |
 | 22  | Monkey Map |               |
 | 23  | Unstable Diffusion |               |
