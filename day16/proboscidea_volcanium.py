@@ -188,7 +188,8 @@ def _parse_input(filename):
 
 
 def build_graph(puzzle_input):
-    nodes = []
+    adj_list = {}
+    values = {}
 
     for line in puzzle_input:
         current_chamber = line[0][6:8]
@@ -196,36 +197,48 @@ def build_graph(puzzle_input):
         paths = line[1][23:].strip(" \n").split(",")
 
         # Add node to nodes list
-        nodes.append(Node(current_chamber, pressure_rate))
+        node = Node(current_chamber, pressure_rate)
+        values[node.name] = node.value
+        adj_list[node.name] = []
 
         for path in paths:
-            nodes[-1].adj_list.append(path)
-    return nodes
+            adj_list[node.name].append(path.strip(" "))
+    return adj_list, values
 
 
 class Traversal:
     def __init__(self, filename, max_moves):
         self.filename = filename
         self.max_moves = max_moves
-        self.current_moves = max_moves
-    def _depth_first_search(self, node, visited, gain, moves):
-        if node.name == "AA":
+        self.value = -1
+
+    def _depth_first_search(self, node, visited, gain, moves, values, adj_list):
+        print(node, moves, self.value, gain)
+        input()
+        if node == "AA":
             self.value = max(self.value, gain)
-        for path in node.adj_list:
-            if self.current_moves - 1 > 0:
-                self._depth_first_search(path, visited, gain + (not visited[node.name]) * path.value)
+        for neighbor in adj_list[node]:
+            if moves - 1 >= 0:
+                self._depth_first_search(
+                    neighbor,
+                    visited | set(neighbor),
+                    gain + ((node not in visited) * values[neighbor] * (moves - 2)),
+                    moves - 1 - (node not in visited),
+                    values,
+                    adj_list
+                )
+            else:
+                break
         pass
 
-    def traverse_graph(self, start_node, nodes):
-        visited = {}
-        for node in nodes:
-            visited[node.name] = False
-
-        return self._depth_first_search(start_node, visited, start_node.value, )
+    def traverse_graph(self, start_node, values, adj_list):
+        visited = set(start_node)
+        self._depth_first_search(start_node, visited, values[start_node], self.max_moves, values, adj_list)
+        return self.value
 
     def open_valves(self):
-        nodes = build_graph(_parse_input(self.filename))
-        return self.traverse_graph(nodes[0], nodes)
+        adj_list, values = build_graph(_parse_input(self.filename))
+        self.traverse_graph("AA", values, adj_list)
 
 
 Traversal("test_proboscidea_volcanium.txt", 30).open_valves()
