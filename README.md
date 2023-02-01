@@ -22,13 +22,13 @@ My solutions for the [Advent of Code](https://adventofcode.com/) competition for
 | 14  | Regolith Reservoir | :star: :star: |
 | 15  | Beacon Exclusion Zone | :star: :star: |
 | 16  | Proboscidea Volcanium |               |
-| 17  | Pyroclastic Flow | |
-| 18  | Boiling Boulders | |
-| 19  | Not Enough Minerals | |
+| 17  | Pyroclastic Flow |               |
+| 18  | Boiling Boulders |               |
+| 19  | Not Enough Minerals |               |
 | 20  | Grove Positioning System | :star: :star: |
-| 21  | Monkey Math | :star: |
-| 22  | Monkey Map | |
-| 23  | Unstable Diffusion | |
-| 24  | Blizzard Basin | |
-| 25  | Full of Hot Air | |
+| 21  | Monkey Math | :star: :star  |
+| 22  | Monkey Map |               |
+| 23  | Unstable Diffusion |               |
+| 24  | Blizzard Basin |               |
+| 25  | Full of Hot Air |               |
 
