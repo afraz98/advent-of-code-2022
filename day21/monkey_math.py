@@ -59,71 +59,62 @@ def parse_input(filename):
 def evaluate(line, values):
     var, val = line.split(":")
     print(var, val)
-
     if "+" in val:
-        print("addition")
-        print(val.split("+"))
-        print(values.get(val.split("+")[0]))
-        print(values.get(val.split("+")[1]))
         if values.get(val.split("+")[0], None) and values.get(val.split("+")[1], None):
             values[var] = values.get(val.split("+")[0], None) + values.get(val.split("+")[1], None)
-            print(var, '=', values[var])
             return True
 
     if "-" in val:
-        print("subtraction")
-        print(val.split("-"))
-        print(values.get(val.split("-")[0]))
-        print(values.get(val.split("-")[1]))
         if values.get(val.split("-")[0], None) and values.get(val.split("-")[1], None):
             values[var] = values.get(val.split("-")[0], None) - values.get(val.split("-")[1], None)
-            print(var, '=', values[var])
             return True
 
     if "/" in val:
-        print("div")
-        print(val.split("/"))
-        print(values.get(val.split("/")[0]))
-        print(values.get(val.split("/")[1]))
         if values.get(val.split("/")[0], None) and values.get(val.split("/")[1], None):
             values[var] = values.get(val.split("/")[0], None) / values.get(val.split("/")[1], None)
-            print(var, '=', values[var])
             return True
 
     if "*" in val:
-        print("mul")
-        print(val.split("*"))
-        print(values.get(val.split("*")[0]))
-        print(values.get(val.split("*")[1]))
         if values.get(val.split("*")[0], None) and values.get(val.split("*")[1], None):
             values[var] = values.get(val.split("*")[0], None) * values.get(val.split("*")[1], None)
-            print(var, '=', values[var])
             return True
     return False
 
-def perform_math(input):
+def solve_expressions(input):
     lines = input
-    values = {'root': -999}
+    values = {'root': None}
 
     # First pass -- collect values
     for line in lines:
         var, val = line.split(":")
-        print(var, val, "!")
-        if val.replace(" ", "").isnumeric():
+        if val.isnumeric():
             values[var] = int(val)
 
-
-    print(lines)
-    # Try to evaluate expressions
-    # print(values)
-
-    #
-    while values['root'] == -999:
+    while values['root'] is None:
         for line in lines:
             evaluate(line, values)
 
-    return values.get("root", -999)
+    return values["root"]
 
 
-print(perform_math(parse_input("monkey_math.txt")))
+print(solve_expressions(parse_input("monkey_math.txt")))
 
+"""
+--- Part Two ---
+
+Due to some kind of monkey-elephant-human mistranslation, you seem to have misunderstood a few key details about the 
+riddle.
+
+First, you got the wrong job for the monkey named root; specifically, you got the wrong math operation. The correct 
+operation for monkey root should be =, which means that it still listens for two numbers 
+(from the same two monkeys as before), but now checks that the two numbers match.
+
+Second, you got the wrong monkey for the job starting with humn:. It isn't a monkey - it's you. Actually, you got the job wrong, too: you need to figure out what number you need to yell so that root's equality check passes. (The number that appears after humn: in your input is now irrelevant.)
+
+In the above example, the number you need to yell to pass root's equality test is 301. (This causes root to get the same number, 150, from both of its monkeys.)
+
+What number do you yell to pass root's equality test?
+
+"""
+
+# Guess and check with root set to 'root: brrs - fcjl' and humn set to various different values
