@@ -1,3 +1,5 @@
+import math
+
 """
 --- Day 25: Full of Hot Air ---
 
@@ -122,26 +124,20 @@ console is 2=-1=0.
 The Elves are starting to get cold. What SNAFU number do you supply to Bob's console?
 """
 
-radix = {
-    '2': 2,
-    '1': 1,
-    '0': 0,
-    '-': -1,
-    '=': -2,
-}
+radix_base_5 = {'2': 2, '1': 1, '0': 0, '-': -1, '=': -2}
+radix_base_10 = {2: '2', 1: '1', 0: '0', -1: '-', -2: '='}
 
 
 def base_10(snafu):
-    value = 0
-    for i in range(len(snafu)):
-        value += radix[snafu[i]] * (5 ** (len(snafu)-1-i))
-
-    return value
+    return sum([radix_base_5[snafu[i]] * (5 ** (len(snafu)-1-i)) for i in range(len(snafu))])
 
 
 def base_5(decimal):
-    value = ''
-    return value
+    max_power = math.floor(math.log(decimal, 5))+1
+    value = [0 for i in range(max_power)]
+    for _ in range(max_power):
+        dist = (5 ** max_power) - decimal
+    return ''.join([str(value) for value in value])
 
 
 assert base_10('0') == 0
@@ -158,11 +154,9 @@ assert base_10('20') == 10
 assert base_10('21') == 11
 assert base_10('1121-1110-1=0') == 314159265
 
+
 def parse_input(filename):
     return [line.strip("\n") for line in open(filename, 'r')]
 
 
-print((sum([base_10(value) for value in parse_input("test_hot_air.txt")])))
-
-
-
+print(base_5(sum([base_10(value) for value in parse_input("hot_air.txt")])))
