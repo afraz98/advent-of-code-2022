@@ -182,7 +182,6 @@ class Node:
         self.value = value
         self.adj_list = []
 
-
 def _parse_input(filename):
     return [line.split(";") for line in open(filename, "r")]
 
@@ -213,20 +212,14 @@ class Traversal:
         self.value = -1
 
     def _depth_first_search(self, node, visited, gain, moves, values, adj_list):
-        print(node, moves, self.value, gain)
-        input()
+        self.path.append((node, moves))
+
         if node == "AA":
             self.value = max(self.value, gain)
         for neighbor in adj_list[node]:
             if moves - 1 >= 0:
-                self._depth_first_search(
-                    neighbor,
-                    visited | set(neighbor),
-                    gain + ((node not in visited) * values[neighbor] * (moves - 2)),
-                    moves - 1 - (node not in visited),
-                    values,
-                    adj_list
-                )
+                self._depth_first_search(neighbor, visited | set(neighbor),
+                                         gain + ((node not in visited) * values[neighbor] * (moves - 2)), moves - 1 - (node not in visited), values, adj_list)
             else:
                 break
         pass
@@ -239,6 +232,8 @@ class Traversal:
     def open_valves(self):
         adj_list, values = build_graph(_parse_input(self.filename))
         self.traverse_graph("AA", values, adj_list)
+        return self.value
 
 
-Traversal("test_proboscidea_volcanium.txt", 30).open_valves()
+print(Traversal("test_proboscidea_volcanium.txt", 30).open_valves())
+
