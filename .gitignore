@@ -2,3 +2,7 @@
 *.log
 *.pyc
 *~
+
+# Remove puzzle inputs from solutions
+*.txt
+*_test.txt
