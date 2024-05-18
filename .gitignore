@@ -6,3 +6,6 @@
 # Remove puzzle inputs from solutions
 *.txt
 *_test.txt
+
+# Omit any puzzle descriptions
+day*/README.md
